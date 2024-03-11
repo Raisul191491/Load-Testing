@@ -1,0 +1,57 @@
+version: '3.7'
+
+services:
+  mysql:
+    image: mysql
+    container_name: mysql
+    restart: always
+    env_file:
+      - local.env
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: server_with_db
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5" 
+          memory: 100M 
+
+  redis:
+    image: redis
+    container_name: redis
+    restart: always
+    env_file:
+      - local.env
+    ports:
+      - "6380:6379"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5" 
+          memory: 100M 
+
+  server_with_database:
+    build: .
+    container_name: server_with_database
+    ports:
+      - "9010:9010"
+    env_file:
+      - local.env
+    depends_on:
+      - mysql
+      - redis
+    links:
+      - mysql
+      - redis
+    deploy:
+      resources:
+        limits:
+          cpus: "1" 
+          memory: 256M 
+
+volumes:
+  db_data:

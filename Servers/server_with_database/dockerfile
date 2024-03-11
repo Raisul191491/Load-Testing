@@ -1,0 +1,18 @@
+FROM golang:latest
+ENV GO111MODULE=on
+
+RUN mkdir /app
+WORKDIR /app
+ADD . /server_with_database
+
+COPY go.mod ./
+COPY go.sum ./
+RUN go mod download
+
+COPY . .
+
+RUN go build -o /server_with_database .
+
+EXPOSE 9010
+
+CMD ["/server_with_database"]
